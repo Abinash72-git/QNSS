@@ -380,22 +380,27 @@ class APIService {
     }
   }
 }
-
 class APIResp {
   final bool status;
-  late final int? statusCode;
+  final int? statusCode;
   final dynamic data;
   final dynamic fullBody;
 
   factory APIResp.fromJson(dynamic json) {
     return APIResp(
       status: json['success'] ?? false,
-      data: json['message'] ?? json,
+      data: json['data'] ?? json,
       fullBody: json,
     );
   }
 
-  APIResp({this.status = false, this.data, this.fullBody, this.statusCode});
+  const APIResp({
+    this.status = false,
+    this.data,
+    this.fullBody,
+    this.statusCode,
+  });
+
   @override
   String toString() {
     return 'Status: $status, StatusCode: $statusCode, Data: $data, FullBody: $fullBody';

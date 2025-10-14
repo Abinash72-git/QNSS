@@ -6,6 +6,25 @@ plugins {
 }
 
 android {
+
+    flavorDimensions("flavor-type")
+    productFlavors {
+    create("dev") {
+        dimension = "flavor-type"
+        applicationId = "com.doubletap.QNSS.dev"
+        resValue("string", "app_name", "QNSS Dev")
+    }
+    create("prod") {
+        dimension = "flavor-type"
+        applicationId = "com.doubletap.QNSS"
+        resValue("string", "app_name", "QNSS")
+    }
+    create("demo") {
+        dimension = "flavor-type"
+        applicationId = "com.doubletap.QNSS.demo"
+        resValue("string", "app_name", "QNSS Demo")
+    }
+}
     namespace = "com.doubletap.QNSS"
     compileSdk = 36
     ndkVersion = "27.0.12077973"

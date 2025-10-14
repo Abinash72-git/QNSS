@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soapy/pages/homepage.dart';
+import 'package:soapy/provider/UserProvider.dart';
 import 'package:soapy/util/appconstant.dart';
 import 'package:soapy/util/button.dart';
 import 'package:soapy/util/colors.dart';
@@ -21,12 +23,13 @@ class _VerifyotpState extends State<Verifyotp> {
   String? mobileNumber;
   bool _isLoading = false;
 
+  UserProvider get provider =>context.read<UserProvider>();
+
   @override
   void initState() {
     super.initState();
     getMobileNumber();
-
-    Future.delayed(Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) focusNode.requestFocus();
     });
   }
@@ -37,14 +40,12 @@ class _VerifyotpState extends State<Verifyotp> {
     setState(() => mobileNumber = number);
   }
 
-  /// ✅ Function to set user as registered
   Future<void> setIsRegistered() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppConstants.ISREGISTERED, true);
-    print("User registration status saved ✅");
+    print("✅ User registration status saved");
   }
 
-  /// Mask the mobile number for privacy
   String maskNumber(String number) {
     if (number.length < 10) return number;
     return number.substring(0, 2) + "*****" + number.substring(7);
@@ -59,12 +60,13 @@ class _VerifyotpState extends State<Verifyotp> {
 
   @override
   Widget build(BuildContext context) {
+    // final userProvider = Provider.of<UserProvider>(context, listen: false);
     final size = MediaQuery.of(context).size;
 
     final defaultPinTheme = PinTheme(
       width: 60,
       height: 60,
-      textStyle: TextStyle(
+      textStyle: const TextStyle(
         fontSize: 24,
         color: Colors.black,
         fontWeight: FontWeight.w600,
@@ -93,40 +95,33 @@ class _VerifyotpState extends State<Verifyotp> {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/Qnss-bg2.jpg"),
             fit: BoxFit.cover,
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               children: [
                 SizedBox(height: size.height * 0.1),
                 Image.asset("assets/icons/Qnss-new_icon.png",
                     width: 350, height: 180),
-                Text(
-                  "Verifying Your",
-                  style: Styles.textStyleLogin(context,
-                      color: AppColor.loginText),
-                ),
+                Text("Verifying Your",
+                    style: Styles.textStyleLogin(context,
+                        color: AppColor.loginText)),
                 const SizedBox(height: 10),
-                Text(
-                  "Code",
-                  style: Styles.textStyleLogin(context,
-                      color: AppColor.loginText),
-                ),
+                Text("Code",
+                    style: Styles.textStyleLogin(context,
+                        color: AppColor.loginText)),
                 SizedBox(height: size.height * 0.05),
-                Text(
-                  "Please type the verification code",
-                  style: Styles.textStyleSmall(context,
-                      color: AppColor.whiteColor),
-                ),
+                Text("Please type the verification code",
+                    style: Styles.textStyleSmall(context,
+                        color: AppColor.whiteColor)),
                 Text(
                   mobileNumber == null
                       ? "sent to ..."
@@ -136,11 +131,11 @@ class _VerifyotpState extends State<Verifyotp> {
                 ),
                 SizedBox(height: size.height * 0.02),
 
-                // Pinput
+                // ✅ PIN input
                 Pinput(
                   controller: otpController,
                   focusNode: focusNode,
-                  length: 4,
+                  length: 6,
                   defaultPinTheme: defaultPinTheme,
                   focusedPinTheme: focusedPinTheme,
                   submittedPinTheme: submittedPinTheme,
@@ -154,40 +149,41 @@ class _VerifyotpState extends State<Verifyotp> {
                   color: AppColor.loginButton,
                   isLoading: _isLoading,
                   onPressed: () async {
-                    if (otpController.text.length == 4) {
+                    if (otpController.text.length == 6 &&
+                        mobileNumber != null) {
                       setState(() => _isLoading = true);
 
-                      // Simulate API call delay
-                      await Future.delayed(const Duration(seconds: 2));
-
-                      // ✅ Save registration status
-                      await setIsRegistered();
-
-                      // ✅ Show success toast
-                      Fluttertoast.showToast(
-                        msg: "OTP verified successfully 🎉",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-
-                      if (!mounted) return;
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => Homepage()),
+                      final result = await provider.verifyOtp(
+                        mobileNumber: mobileNumber!,
+                        otp: otpController.text,
                       );
 
                       setState(() => _isLoading = false);
+
+                      if (result.status) {
+                        await setIsRegistered();
+                        Fluttertoast.showToast(
+                          msg: "OTP verified successfully 🎉",
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                        );
+                        if (!mounted) return;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const Homepage()),
+                        );
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: "Invalid OTP or Login failed",
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                        );
+                      }
                     } else {
                       Fluttertoast.showToast(
-                        msg: "Please enter complete OTP",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
+                        msg: "Please enter the complete OTP",
                         backgroundColor: Colors.red,
                         textColor: Colors.white,
-                        fontSize: 14.0,
                       );
                     }
                   },
@@ -197,21 +193,17 @@ class _VerifyotpState extends State<Verifyotp> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Didn't get code",
-                      style: Styles.textStyleSmall2(context,
-                          color: AppColor.loginText),
-                    ),
+                    Text("Didn't get code",
+                        style: Styles.textStyleSmall2(context,
+                            color: AppColor.loginText)),
                     SizedBox(width: size.width * 0.01),
                     GestureDetector(
                       onTap: () {
                         print("Resend OTP clicked");
                       },
-                      child: Text(
-                        "RESEND !",
-                        style: Styles.textStyleSmall(context,
-                            color: AppColor.redColor),
-                      ),
+                      child: Text("RESEND !",
+                          style: Styles.textStyleSmall(context,
+                              color: AppColor.redColor)),
                     ),
                   ],
                 ),

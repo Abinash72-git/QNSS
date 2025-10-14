@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:soapy/pages/verifyOtp.dart';
+import 'package:soapy/provider/UserProvider.dart';
 import 'package:soapy/util/appconstant.dart';
 import 'package:soapy/util/button.dart';
 import 'package:soapy/util/colors.dart';
@@ -16,25 +18,22 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
-  // Specify the correct type for the GlobalKey
   final GlobalKey<PhonetextfeildState> phoneFieldKey =
       GlobalKey<PhonetextfeildState>();
   final TextEditingController mobileController = TextEditingController();
   bool _isLoading = false;
+  UserProvider get provider => context.read<UserProvider>();
 
   @override
   void initState() {
     super.initState();
-    // Add listener to close keyboard when max digits are entered
     mobileController.addListener(() {
       if (!mounted) return;
-
-      // Get the current required length from the phone field
       final phoneState = phoneFieldKey.currentState;
       if (phoneState != null) {
         final requiredLength = phoneState.phoneMaxLength;
         if (mobileController.text.length == requiredLength) {
-          FocusScope.of(context).unfocus(); // Close keyboard
+          FocusScope.of(context).unfocus();
         }
       }
     });
@@ -43,6 +42,17 @@ class _LoginpageState extends State<Loginpage> {
   Future<void> saveMobileNumber(String number) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(AppConstants.USERMOBILE, number);
+  }
+
+  void showErrorToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 
   @override
@@ -75,7 +85,7 @@ class _LoginpageState extends State<Loginpage> {
               children: [
                 SizedBox(height: size.height * 0.1),
                 Image.asset(
-                  "assets/icons/Qnss-new_icon.png",
+                  "assets/icons/Qnss-final-2.png",
                   width: 350,
                   height: 180,
                 ),
@@ -168,55 +178,52 @@ class _LoginpageState extends State<Loginpage> {
                     if (mobileController.text.length == requiredLength) {
                       setState(() => _isLoading = true);
 
-                      // Get full number with country code
-                      final fullNumber = phoneFieldState.getFullPhoneNumber();
-                      print("Full phone number: $fullNumber");
+                      try {
+                        // Get just the plain number without country code
+                        final plainNumber = mobileController.text;
+                        final fullNumber = phoneFieldState.getFullPhoneNumber();
 
-                      // Save the mobile number with country code
-                      await saveMobileNumber(fullNumber);
+                        print("Plain number for API: $plainNumber");
+                        print("Full number for storage: $fullNumber");
 
-                      // Simulate network delay
-                      await Future.delayed(const Duration(seconds: 2));
+                        // Save the full number with country code
+                        await saveMobileNumber(fullNumber);
 
-                      // Navigate to OTP page
-                      if (!mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (route) => Verifyotp()),
-                      );
-                      setState(() => _isLoading = false);
+                        // Call API with just the plain number
+                        final result = await provider.login(
+                          UserMobile: plainNumber,
+                        );
+
+                        if (!mounted) return;
+
+                        if (result.status) {
+                          // OTP sent successfully
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (route) => Verifyotp()),
+                          );
+                        } else {
+                          // Show error message from API
+                          String errorMsg = "Failed to send OTP";
+                          if (result.data != null &&
+                              result.data["message"] != null) {
+                            errorMsg = result.data["message"];
+                          }
+                          showErrorToast(errorMsg);
+                        }
+                      } catch (e) {
+                        print("Error sending OTP: $e");
+                        showErrorToast("Network error. Please try again.");
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                        }
+                      }
                     } else {
                       // Show toast for invalid number
-                      try {
-                        Fluttertoast.showToast(
-                          msg:
-                              "Please enter a valid $requiredLength-digit mobile number",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 14.0,
-                        );
-                      } catch (e) {
-                        // Fallback if Fluttertoast fails
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   SnackBar(
-                        //     content: Text(
-                        //       "Please enter a valid $requiredLength-digit mobile number"
-                        //     ),
-                        //     backgroundColor: Colors.red,
-                        //   ),
-                        // );
-                        Fluttertoast.showToast(
-                          msg:
-                              "Please enter a valid $requiredLength-digit mobile number",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
-                      }
+                      showErrorToast(
+                        "Please enter a valid $requiredLength-digit mobile number",
+                      );
                     }
                   },
                 ),

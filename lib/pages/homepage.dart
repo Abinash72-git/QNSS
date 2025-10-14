@@ -128,7 +128,6 @@ class _HomepageState extends State<Homepage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      // This is key - let Flutter handle the safe area automatically
       extendBody: false, // Don't extend body behind bottom nav
       drawer: const AppDrawer(),
       appBar: AppBar(
@@ -142,7 +141,7 @@ class _HomepageState extends State<Homepage> {
         title: Padding(
           padding: const EdgeInsets.only(right: 30),
           child: Image.asset(
-            "assets/soapy-logo2.png",
+            "assets/icons/Qnss1.png",
             fit: BoxFit.contain,
             width: size.width * 0.35,
           ),

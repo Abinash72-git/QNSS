@@ -1,5 +1,3 @@
-
-
 import 'package:soapy/flavours.dart';
 
 class AppConfig {
@@ -8,13 +6,13 @@ class AppConfig {
   String get baseUrl {
     switch (F.appFlavor) {
       case null:
-        return "https://fulupostore.tsitcloud.com/api";
+        return "https://nss.tsitcloud.com/";
       case Flavor.dev:
-        return "https://fulupostore.tsitcloud.com/api";
+        return "https://nss.tsitcloud.com/";
       case Flavor.prod:
-        return "https://fulupostore.tsitcloud.com/api";
+        return "https://nss.tsitcloud.com/";
       case Flavor.demo:
-        return "https://fulupostore.tsitcloud.com/api";
+        return "https://nss.tsitcloud.com/";
     }
   }
 }

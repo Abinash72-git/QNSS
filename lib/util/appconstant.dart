@@ -6,7 +6,7 @@ class AppConstants {
 
   //API URL Constants
   // static const String BASE_URL = 'https://new.dev-healthplanner.xyz/api/'; //Dev
-  static const String BASE_URL = "https://fulupostore.tsitcloud.com/api"; //Prod
+  static const String BASE_URL = "https://nss.tsitcloud.com/"; //Prod
 
   // static final String BASE_URL = AppConfig.instance.baseUrl;
 
@@ -28,11 +28,14 @@ class AppConstants {
   static const String refreshToken = 'refresh_token';
   static const String USERMOBILE = 'user_mobile';
   static const String UserID = 'userId';
+    static const String Otp = 'Otp';
   static const String Company = 'company';
   static const String location = 'location';
   static const String USERIMAGE = 'user_image';
   static const String ISREGISTERED = 'is_registered';
   static const String USERNAME = 'user_name';
+  static const String USERROLE ='user_role';
   static const String COMPANY = 'company_name';
   static const String LOCATION = 'location_address';
+  static const String OtpExpiresIn ='expiresIn';
 }

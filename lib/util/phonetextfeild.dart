@@ -44,7 +44,6 @@ class PhonetextfeildState extends State<Phonetextfeild> {
     'SG': {'code': '+65', 'length': 8, 'flag': '🇸🇬'},
     'ID': {'code': '+62', 'length': 10, 'flag': '🇮🇩'},
     'IN': {'code': '+91', 'length': 10, 'flag': '🇮🇳'},
-
     // Add more countries as needed
   };
 
@@ -72,81 +71,85 @@ class PhonetextfeildState extends State<Phonetextfeild> {
       );
     }
   }
+@override
+Widget build(BuildContext context) {
+  final size = MediaQuery.of(context).size;
 
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+  if (!widget.isPhoneField) {
+    // Return regular text field if not a phone field
+    return _buildRegularTextField(size);
+  }
 
-    if (!widget.isPhoneField) {
-      // Return regular text field if not a phone field
-      return _buildRegularTextField(size);
-    }
-
-    // Return unified phone field with country code in a single container
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: widget.fillColor,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: Border.all(color: widget.borderColor),
-      ),
+  // Return unified phone field with country code in a single container
+  return Container(
+    height: 50,
+    decoration: BoxDecoration(
+      color: widget.fillColor,
+      borderRadius: BorderRadius.circular(widget.borderRadius),
+      border: Border.all(color: widget.borderColor),
+    ),
+    child: ClipRRect(  // Add this to clip the inner contents
+      borderRadius: BorderRadius.circular(widget.borderRadius - 1), // Slightly smaller
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Country code dropdown
-            Container(
-              margin: EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(
-                    color: widget.borderColor.withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: PopupMenuButton<String>(
-                padding: EdgeInsets.zero,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "${countryData[selectedCountry]!['flag']}",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          "${countryData[selectedCountry]!['code']}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Icon(Icons.arrow_drop_down),
-                      ],
-                    ),
-                  ),
-                ),
-                onSelected: _updateCountry,
-                itemBuilder: (context) {
-                  return countryData.keys.map((String country) {
-                    return PopupMenuItem<String>(
-                      value: country,
+            Material(  // Wrap in Material for proper ripple effects
+              color: Colors.transparent,
+              child: Container(
+                margin: EdgeInsets.only(right: 8),
+                child: PopupMenuButton<String>(
+                  padding: EdgeInsets.zero,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Center(
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("${countryData[country]!['flag']} "),
-                          Text("${countryData[country]!['code']} ($country)"),
+                          Text(
+                            "${countryData[selectedCountry]!['flag']}",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            "${countryData[selectedCountry]!['code']}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Icon(Icons.arrow_drop_down),
                         ],
                       ),
-                    );
-                  }).toList();
-                },
+                    ),
+                  ),
+                  onSelected: _updateCountry,
+                  itemBuilder: (context) {
+                    return countryData.keys.map((String country) {
+                      return PopupMenuItem<String>(
+                        value: country,
+                        child: Row(
+                          children: [
+                            Text("${countryData[country]!['flag']} "),
+                            Text("${countryData[country]!['code']} ($country)"),
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
               ),
             ),
-            // Phone number field - now without its own border
+            
+            // Vertical divider
+            Container(
+              width: 1,
+              color: Colors.grey.withOpacity(0.2),
+              margin: EdgeInsets.symmetric(vertical: 8),
+            ),
+            
+            // Phone number field
             Expanded(
               child: TextFormField(
                 controller: widget.controller,
@@ -155,7 +158,7 @@ class PhonetextfeildState extends State<Phonetextfeild> {
                 maxLength: phoneMaxLength,
                 validator: widget.validator ?? _defaultPhoneValidator,
                 style: TextStyle(
-                  fontSize: size.width * 0.05,
+                  fontSize: size.width * 0.05,  // Slightly smaller
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -165,7 +168,7 @@ class PhonetextfeildState extends State<Phonetextfeild> {
                 ],
                 decoration: InputDecoration(
                   counterText: '',
-                  border: InputBorder.none, // No border for the text field
+                  border: InputBorder.none,
                   hintText: widget.hintText.isNotEmpty
                       ? '${widget.hintText}'
                       : 'Phone Number',
@@ -173,36 +176,27 @@ class PhonetextfeildState extends State<Phonetextfeild> {
                     color: Colors.black54,
                     fontSize: 16,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 12,
-                  ),
+                  // contentPadding: const EdgeInsets.symmetric(
+                  //   vertical: 15,
+                  //   horizontal: 12,
+                  // ),
                   errorStyle: TextStyle(
                     color: widget.errorTextColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
+                  // Remove any focus decoration that might be causing issues
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
                 ),
               ),
             ),
-
-            // // Optional info icon showing required digits
-            // Padding(
-            //   padding: const EdgeInsets.only(right: 12.0),
-            //   child: Tooltip(
-            //     message: "${phoneMaxLength} digits required",
-            //     child: Icon(
-            //       Icons.info_outline,
-            //       color: Colors.grey,
-            //       size: 18,
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildRegularTextField(Size size) {
     return TextFormField(
@@ -251,6 +245,7 @@ class PhonetextfeildState extends State<Phonetextfeild> {
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
+      
       ),
     );
   }
