@@ -103,7 +103,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                 children: [
                   const SizedBox(height: 150),
                   Image.asset(
-                    "assets/icons/Qnss-new_icon.png",
+                    "assets/icons/Qnss-final-2.png",
                     width: 300,
                     height: 300,
                   ),

@@ -13,7 +13,7 @@ class NotificationPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Notifications',
-          style: TextStyle(color: AppColor.loginText),
+          style: TextStyle(color: AppColor.loginText),textScaler: TextScaler.linear(1),
         ),
         backgroundColor: AppColor.loginButton,
         centerTitle: true,

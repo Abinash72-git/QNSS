@@ -27,16 +27,7 @@ class _LoginpageState extends State<Loginpage> {
   @override
   void initState() {
     super.initState();
-    mobileController.addListener(() {
-      if (!mounted) return;
-      final phoneState = phoneFieldKey.currentState;
-      if (phoneState != null) {
-        final requiredLength = phoneState.phoneMaxLength;
-        if (mobileController.text.length == requiredLength) {
-          FocusScope.of(context).unfocus();
-        }
-      }
-    });
+    // Removed the auto-close keyboard listener
   }
 
   Future<void> saveMobileNumber(String number) async {
@@ -131,7 +122,7 @@ class _LoginpageState extends State<Loginpage> {
                   controller: mobileController,
                   hintText: 'Mobile Number',
                   isPhoneField: true,
-                  initialCountryCode: 'IN', // Default to India
+                  initialCountryCode: 'ID', // Default to Indonesia
                   borderColor: AppColor.whiteColor,
                   fillColor: AppColor.whiteColor,
                   errorTextColor: Colors.red,
@@ -164,32 +155,24 @@ class _LoginpageState extends State<Loginpage> {
                   onPressed: () async {
                     if (_isLoading) return;
 
-                    // Get the phone field state
                     final phoneFieldState = phoneFieldKey.currentState;
                     if (phoneFieldState == null) {
                       print("Could not access phone field state");
                       return;
                     }
 
-                    // Get the current phone length requirement
-                    final requiredLength = phoneFieldState.phoneMaxLength;
-
-                    // Validate phone number
-                    if (mobileController.text.length == requiredLength) {
+                    if (mobileController.text.isNotEmpty) {
                       setState(() => _isLoading = true);
 
                       try {
-                        // Get just the plain number without country code
                         final plainNumber = mobileController.text;
                         final fullNumber = phoneFieldState.getFullPhoneNumber();
 
                         print("Plain number for API: $plainNumber");
                         print("Full number for storage: $fullNumber");
 
-                        // Save the full number with country code
                         await saveMobileNumber(fullNumber);
 
-                        // Call API with just the plain number
                         final result = await provider.login(
                           UserMobile: plainNumber,
                         );
@@ -197,22 +180,26 @@ class _LoginpageState extends State<Loginpage> {
                         if (!mounted) return;
 
                         if (result.status) {
-                          // OTP sent successfully
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (route) => Verifyotp()),
                           );
                         } else {
-                          // Show error message from API
                           String errorMsg = "Failed to send OTP";
-                          if (result.data != null &&
-                              result.data["message"] != null) {
-                            errorMsg = result.data["message"];
+                          if (result.fullBody != null) {
+                            if (result.fullBody is Map &&
+                                result.fullBody["message"] != null) {
+                              errorMsg = result.fullBody["message"];
+                            } else if (result.data is Map &&
+                                result.data["message"] != null) {
+                              errorMsg = result.data["message"];
+                            }
                           }
+
                           showErrorToast(errorMsg);
                         }
                       } catch (e) {
-                        print("Error sending OTP: $e");
+                        print("Error in OTP button: $e");
                         showErrorToast("Network error. Please try again.");
                       } finally {
                         if (mounted) {
@@ -220,10 +207,7 @@ class _LoginpageState extends State<Loginpage> {
                         }
                       }
                     } else {
-                      // Show toast for invalid number
-                      showErrorToast(
-                        "Please enter a valid $requiredLength-digit mobile number",
-                      );
+                      showErrorToast("Please enter a mobile number");
                     }
                   },
                 ),

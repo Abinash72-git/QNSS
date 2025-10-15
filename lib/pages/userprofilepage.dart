@@ -91,7 +91,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   backgroundImage:
                       _imagePath != null ? FileImage(File(_imagePath!)) : null,
                   child: _imagePath == null
-                      ? const Icon(Icons.camera_alt,
+                      ? const Icon(Icons.person_2_sharp,
                           size: 40, color: Colors.white)
                       : null,
                 ),

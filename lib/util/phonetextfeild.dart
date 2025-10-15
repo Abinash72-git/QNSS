@@ -36,14 +36,13 @@ class Phonetextfeild extends StatefulWidget {
 }
 
 class PhonetextfeildState extends State<Phonetextfeild> {
-  String selectedCountry = 'IN'; // Default to India
-  int phoneMaxLength = 10; // Default for India
+  String selectedCountry = 'ID'; // Default to Indonesia
+  int phoneMaxLength = 15; // General max length
 
-  // Map of country codes with their phone number lengths
+  // Map of country codes without strict length requirements
   final Map<String, Map<String, dynamic>> countryData = {
-    'SG': {'code': '+65', 'length': 8, 'flag': '🇸🇬'},
-    'ID': {'code': '+62', 'length': 10, 'flag': '🇮🇩'},
-    'IN': {'code': '+91', 'length': 10, 'flag': '🇮🇳'},
+    'SG': {'code': '+65', 'flag': '🇸🇬'},
+    'ID': {'code': '+62', 'flag': '🇮🇩'},
     // Add more countries as needed
   };
 
@@ -53,150 +52,159 @@ class PhonetextfeildState extends State<Phonetextfeild> {
     if (widget.initialCountryCode != null &&
         countryData.containsKey(widget.initialCountryCode)) {
       selectedCountry = widget.initialCountryCode!;
-      phoneMaxLength = countryData[selectedCountry]!['length'];
     }
   }
 
   void _updateCountry(String country) {
     setState(() {
       selectedCountry = country;
-      phoneMaxLength = countryData[country]!['length'];
     });
+  }
 
-    // Clear the field if it's longer than the new max length
-    if (widget.controller.text.length > phoneMaxLength) {
-      widget.controller.text = widget.controller.text.substring(
-        0,
-        phoneMaxLength,
-      );
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    if (!widget.isPhoneField) {
+      // Return regular text field if not a phone field
+      return _buildRegularTextField(size);
     }
-  }
-@override
-Widget build(BuildContext context) {
-  final size = MediaQuery.of(context).size;
 
-  if (!widget.isPhoneField) {
-    // Return regular text field if not a phone field
-    return _buildRegularTextField(size);
-  }
-
-  // Return unified phone field with country code in a single container
-  return Container(
-    height: 50,
-    decoration: BoxDecoration(
-      color: widget.fillColor,
-      borderRadius: BorderRadius.circular(widget.borderRadius),
-      border: Border.all(color: widget.borderColor),
-    ),
-    child: ClipRRect(  // Add this to clip the inner contents
-      borderRadius: BorderRadius.circular(widget.borderRadius - 1), // Slightly smaller
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Country code dropdown
-            Material(  // Wrap in Material for proper ripple effects
-              color: Colors.transparent,
-              child: Container(
-                margin: EdgeInsets.only(right: 8),
-                child: PopupMenuButton<String>(
-                  padding: EdgeInsets.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "${countryData[selectedCountry]!['flag']}",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            "${countryData[selectedCountry]!['code']}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Icon(Icons.arrow_drop_down),
-                        ],
-                      ),
-                    ),
-                  ),
-                  onSelected: _updateCountry,
-                  itemBuilder: (context) {
-                    return countryData.keys.map((String country) {
-                      return PopupMenuItem<String>(
-                        value: country,
+    // Return unified phone field with country code in a single container
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: widget.fillColor,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        border: Border.all(color: widget.borderColor),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(widget.borderRadius - 1),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Country code dropdown
+              Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin: EdgeInsets.only(right: 8),
+                  child: PopupMenuButton<String>(
+                    padding: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Center(
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text("${countryData[country]!['flag']} "),
-                            Text("${countryData[country]!['code']} ($country)"),
+                            Text(
+                              "${countryData[selectedCountry]!['flag']}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              "${countryData[selectedCountry]!['code']}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Icon(Icons.arrow_drop_down),
                           ],
                         ),
-                      );
-                    }).toList();
-                  },
+                      ),
+                    ),
+                    onSelected: _updateCountry,
+                    itemBuilder: (context) {
+                      return countryData.keys.map((String country) {
+                        return PopupMenuItem<String>(
+                          value: country,
+                          child: Row(
+                            children: [
+                              Text("${countryData[country]!['flag']} "),
+                              Text("${countryData[country]!['code']} ($country)"),
+                            ],
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
                 ),
               ),
-            ),
-            
-            // Vertical divider
-            Container(
-              width: 1,
-              color: Colors.grey.withOpacity(0.2),
-              margin: EdgeInsets.symmetric(vertical: 8),
-            ),
-            
-            // Phone number field
-            Expanded(
-              child: TextFormField(
-                controller: widget.controller,
-                keyboardType: TextInputType.phone,
-                textAlign: TextAlign.left,
-                maxLength: phoneMaxLength,
-                validator: widget.validator ?? _defaultPhoneValidator,
-                style: TextStyle(
-                  fontSize: size.width * 0.05,  // Slightly smaller
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(phoneMaxLength),
-                ],
-                decoration: InputDecoration(
-                  counterText: '',
-                  border: InputBorder.none,
-                  hintText: widget.hintText.isNotEmpty
-                      ? '${widget.hintText}'
-                      : 'Phone Number',
-                  hintStyle: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 16,
+              
+              // Vertical divider
+              Container(
+                width: 1,
+                color: Colors.grey.withOpacity(0.2),
+                margin: EdgeInsets.symmetric(vertical: 8),
+              ),
+              
+              // Phone number field
+              Expanded(
+                child: TextFormField(
+                  controller: widget.controller,
+                  keyboardType: TextInputType.phone,
+                  textAlign: TextAlign.left,
+                  maxLength: phoneMaxLength,
+                  validator: widget.validator ?? _defaultPhoneValidator,
+                  style: TextStyle(
+                    fontSize: size.width * 0.05,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  // contentPadding: const EdgeInsets.symmetric(
-                  //   vertical: 15,
-                  //   horizontal: 12,
-                  // ),
-                  errorStyle: TextStyle(
-                    color: widget.errorTextColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(phoneMaxLength),
+                  ],
+                  decoration: InputDecoration(
+                    counterText: '',
+                    border: InputBorder.none,
+                    hintText: widget.hintText.isNotEmpty
+                        ? '${widget.hintText}'
+                        : 'Phone Number',
+                    hintStyle: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 16,
+                    ),
+                    errorStyle: TextStyle(
+                      color: widget.errorTextColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
                   ),
-                  // Remove any focus decoration that might be causing issues
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  // Other methods (build regular text field, etc.)
+  
+  // Modified validator without strict length requirement
+  String? _defaultPhoneValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+    // No length validation - just checking if it's not empty
+    return null;
+  }
+
+  // Get the full phone number (with country code)
+  String getFullPhoneNumber() {
+    return "${countryData[selectedCountry]!['code']}${widget.controller.text}";
+  }
+
+  // Get just the country code
+  String getCountryCode() {
+    return countryData[selectedCountry]!['code'];
+  }
+
+
 
   Widget _buildRegularTextField(Size size) {
     return TextFormField(
@@ -250,24 +258,24 @@ Widget build(BuildContext context) {
     );
   }
 
-  // Default phone validator
-  String? _defaultPhoneValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Phone number is required';
-    }
-    if (value.length != phoneMaxLength) {
-      return 'Phone number must be $phoneMaxLength digits for ${selectedCountry}';
-    }
-    return null;
-  }
+  // // Default phone validator
+  // String? _defaultPhoneValidator(String? value) {
+  //   if (value == null || value.isEmpty) {
+  //     return 'Phone number is required';
+  //   }
+  //   if (value.length != phoneMaxLength) {
+  //     return 'Phone number must be $phoneMaxLength digits for ${selectedCountry}';
+  //   }
+  //   return null;
+  // }
 
-  // Get the full phone number (with country code)
-  String getFullPhoneNumber() {
-    return "${countryData[selectedCountry]!['code']}${widget.controller.text}";
-  }
+  // // Get the full phone number (with country code)
+  // String getFullPhoneNumber() {
+  //   return "${countryData[selectedCountry]!['code']}${widget.controller.text}";
+  // }
 
-  // Get just the country code
-  String getCountryCode() {
-    return countryData[selectedCountry]!['code'];
-  }
+  // // Get just the country code
+  // String getCountryCode() {
+  //   return countryData[selectedCountry]!['code'];
+  // }
 }

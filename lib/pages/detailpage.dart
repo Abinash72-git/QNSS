@@ -192,8 +192,9 @@ class _DetailpageState extends State<Detailpage> {
                           child: Text(
                             widget.distance,
                             style: const TextStyle(
+                              fontSize: 10,
                               color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w900,
                             ),
                             textScaler: TextScaler.linear(1),
                           ),
@@ -448,14 +449,14 @@ class _VerificationDialogState extends State<_VerificationDialog> {
               ),
             ] else ...[
               Image.asset(
-                "assets/icons/id.png",
+                "assets/icons/map.png",
                 width: 80,
                 height: 80,
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 12),
               const Text(
-                "Verification Successful",
+                "Geo Location Verified Successful",
                 textScaler: TextScaler.linear(1),
                 textAlign: TextAlign.center,
                 style: TextStyle(

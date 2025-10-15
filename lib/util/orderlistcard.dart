@@ -379,7 +379,7 @@ class OrderListCard extends StatelessWidget {
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 10, left: 20),
+                      padding: const EdgeInsets.only(bottom: 10, left: 10),
                       child: GestureDetector(
                         onTap: isDisabled
                             ? () {

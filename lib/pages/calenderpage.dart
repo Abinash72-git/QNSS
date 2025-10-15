@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soapy/util/style.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:soapy/util/colors.dart';
 import 'package:soapy/util/dottedLine.dart';
@@ -15,21 +16,64 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final Map<DateTime, JobStatus> _jobStatuses = {
-    DateTime(2025, 10, 10): JobStatus.finished,
-    DateTime(2025, 10, 12): JobStatus.finished,
-    DateTime(2025, 10, 13): JobStatus.finished,
-    DateTime(2025, 10, 14): JobStatus.currentJob,
-    DateTime(2025, 10, 15): JobStatus.yetToStart,
-    DateTime(2025, 10, 16): JobStatus.yetToStart,
-    DateTime(2025, 10, 8): JobStatus.missed,
-    DateTime(2025, 10, 9): JobStatus.missed,
-  };
+  // Dynamic job statuses based on current date
+  late Map<DateTime, JobStatus> _jobStatuses;
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
+    _initializeJobStatuses();
+  }
+
+  void _initializeJobStatuses() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    _jobStatuses = {};
+
+    // Generate job statuses dynamically with randomization
+    // Jobs from 15 days ago to 10 days in the future
+    for (int i = -15; i <= 10; i++) {
+      final date = today.add(Duration(days: i));
+      
+      // Use date-based seed for consistent but pseudo-random results
+      final seed = date.day + date.month * 31 + date.year * 372;
+      final random = (seed * 1103515245 + 12345) % 100; // Simple pseudo-random
+      
+      if (i < -5) {
+        // Past jobs (more than 5 days ago)
+        if (random % 4 == 0) {
+          // 25% chance - Missed (forgot to complete)
+          _jobStatuses[date] = JobStatus.missed;
+        } else if (random % 3 != 0) {
+          // ~66% chance - Finished
+          _jobStatuses[date] = JobStatus.finished;
+        }
+        // ~9% no job scheduled
+      } else if (i >= -5 && i < 0) {
+        // Recent past jobs (last 5 days)
+        if (random % 5 == 0) {
+          // 20% chance - Finished (completed late)
+          _jobStatuses[date] = JobStatus.finished;
+        } else if (random % 2 == 0) {
+          // 40% chance - Missed
+          _jobStatuses[date] = JobStatus.missed;
+        }
+        // 40% no job scheduled
+      } else if (i == 0) {
+        // Today - Current Job (always have a job today)
+        _jobStatuses[date] = JobStatus.currentJob;
+      } else if (i > 0 && i <= 8) {
+        // Next 8 days - Yet to Start
+        if (random % 3 != 0) {
+          // ~66% chance - Yet to Start
+          _jobStatuses[date] = JobStatus.yetToStart;
+        }
+        // ~33% no job scheduled
+      }
+      // Days beyond 8 days in future have fewer jobs
+    }
   }
 
   Color _getJobStatusColor(DateTime day) {
@@ -69,7 +113,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 fontSize: 16,
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
-              ),textScaler: TextScaler.linear(1),
+              ),
+              textScaler: TextScaler.linear(1),
             ),
           ],
         ),
@@ -113,7 +158,8 @@ class _CalendarPageState extends State<CalendarPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                  ),textScaler: TextScaler.linear(1),
+                  ),
+                  textScaler: TextScaler.linear(1),
                 ),
               ),
             ],
@@ -129,7 +175,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
-                ),textScaler: TextScaler.linear(1),
+                ),
+                textScaler: TextScaler.linear(1),
               ),
             ],
           ),
@@ -140,7 +187,8 @@ class _CalendarPageState extends State<CalendarPage> {
               SizedBox(width: 8),
               Text(
                 'Building A, Floor 2',
-                style: TextStyle(fontSize: 14, color: Colors.grey),textScaler: TextScaler.linear(1),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textScaler: TextScaler.linear(1),
               ),
             ],
           ),
@@ -151,7 +199,8 @@ class _CalendarPageState extends State<CalendarPage> {
               SizedBox(width: 5),
               Text(
                 '09:00 AM - 05:00 PM',
-                style: TextStyle(fontSize: 14, color: Colors.grey),textScaler: TextScaler.linear(1),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textScaler: TextScaler.linear(1),
               ),
             ],
           ),
@@ -176,6 +225,16 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: AppBar(
+        title: Text(
+          "Job Calendar",
+          style: Styles.textStyleButton(context, color: AppColor.loginText),
+          textScaler: TextScaler.linear(1),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -189,39 +248,40 @@ class _CalendarPageState extends State<CalendarPage> {
           child: Column(
             children: [
               // Custom App Bar
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Job Calendar',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),textScaler: TextScaler.linear(1),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 16,
+              //     vertical: 12,
+              //   ),
+                // decoration: BoxDecoration(
+                //   color: Colors.white,
+                //   boxShadow: [
+                //     BoxShadow(
+                //       color: Colors.black.withOpacity(0.1),
+                //       blurRadius: 8,
+                //       offset: const Offset(0, 2),
+                //     ),
+                //   ],
+                // ),
+                // child: Row(
+                //   children: [
+                //     IconButton(
+                //       icon: const Icon(Icons.arrow_back, color: Colors.black),
+                //       onPressed: () => Navigator.pop(context),
+                //     ),
+                //     const SizedBox(width: 8),
+                //     const Text(
+                //       'Job Calendar',
+                //       style: TextStyle(
+                //         fontSize: 22,
+                //         fontWeight: FontWeight.bold,
+                //         color: Colors.black,
+                //       ),
+                //       textScaler: TextScaler.linear(1),
+                //     ),
+                //   ],
+                // ),
+              // ),
 
               DottedLine(
                 height: 1,
@@ -235,16 +295,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 16),
-                      // Wrap(
-                      //   spacing: 8,
-                      //   children: [
-                      //     _buildColorPill(Colors.green, "Yet to Start"),
-                      //     _buildColorPill(Colors.orange, "Current"),
-                      //     _buildColorPill(Colors.grey, "Finished"),
-                      //     _buildColorPill(Colors.red, "Missed"),
-                      //   ],
-                      // ),
-                      // Status Legend - Horizontal Row
+                      // Status Legend
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 15),
                         padding: const EdgeInsets.all(16),
@@ -274,7 +325,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                  ),textScaler: TextScaler.linear(1),
+                                  ),
+                                  textScaler: TextScaler.linear(1),
                                 ),
                               ],
                             ),
@@ -337,7 +389,6 @@ class _CalendarPageState extends State<CalendarPage> {
                           children: [
                             // Calendar Header
                             Container(
-                              // padding: const EdgeInsets.all(16),
                               padding: EdgeInsets.symmetric(
                                 horizontal: 15,
                                 vertical: 5,
@@ -382,7 +433,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                       letterSpacing: 0.5,
-                                    ),textScaler: TextScaler.linear(1),
+                                    ),
+                                    textScaler: TextScaler.linear(1),
                                   ),
                                   IconButton(
                                     icon: const Icon(
@@ -450,6 +502,19 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                                 outsideDaysVisible: false,
                               ),
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                weekdayStyle: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                weekendStyle: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              daysOfWeekHeight: 25,
                               calendarBuilders: CalendarBuilders(
                                 defaultBuilder: (context, day, focusedDay) {
                                   return _buildCalendarDay(day, false, false);
@@ -504,7 +569,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                    ),textScaler: TextScaler.linear(1),
+                                    ),
+                                    textScaler: TextScaler.linear(1),
                                   ),
                                 ],
                               ),
@@ -531,7 +597,7 @@ class _CalendarPageState extends State<CalendarPage> {
     final hasJob = color != Colors.transparent;
 
     return Container(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: isSelected
             ? AppColor.loginButton
@@ -559,7 +625,8 @@ class _CalendarPageState extends State<CalendarPage> {
             color: isSelected || isToday ? Colors.white : Colors.black,
             fontWeight: hasJob ? FontWeight.bold : FontWeight.normal,
             fontSize: 15,
-          ),textScaler: TextScaler.linear(1),
+          ),
+          textScaler: TextScaler.linear(1),
         ),
       ),
     );
@@ -586,9 +653,9 @@ class _CalendarPageState extends State<CalendarPage> {
             child: Text(
               title,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-              overflow: TextOverflow.ellipsis,textScaler: TextScaler.linear(1),
+              overflow: TextOverflow.ellipsis,
+              textScaler: TextScaler.linear(1),
             ),
-            
           ),
         ],
       ),
@@ -611,17 +678,6 @@ class _CalendarPageState extends State<CalendarPage> {
       'December',
     ];
     return months[month - 1];
-  }
-
-  Widget _buildColorPill(Color color, String text) {
-    return Chip(
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color),
-      label: Text(text, style: TextStyle(fontSize: 11, color: color)),
-      avatar: CircleAvatar(backgroundColor: color, radius: 6),
-      padding: EdgeInsets.zero,
-      labelPadding: EdgeInsets.only(left: 4, right: 6),
-    );
   }
 }
 

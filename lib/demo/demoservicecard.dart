@@ -36,10 +36,8 @@ class ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final cardHeight = size.width * 0.35; // Fixed height for consistent layout
 
     return Container(
-      height: cardHeight,
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: isCompleted ? const Color(0xFFEDF7ED) : const Color(0xFFFDF7ED),
@@ -74,63 +72,57 @@ class ServiceCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
 
-                // Right content section with fixed layout
+                // Right content - Fixed with Expanded
                 Expanded(
-                  child: SizedBox(
-                    height: size.width * 0.3, // Match image height
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Title with constrained height
-                        Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Text(
-                            company,
-                            style: TextStyle(
-                              fontSize: size.width * 0.035,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.black87,
+                        // Title with proper width constraint
+                        Text(
+                          company,
+                          style: TextStyle(
+                            fontSize: size.width * 0.035,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 2, // Allow 2 lines for title
+                          overflow: TextOverflow.ellipsis,
+                          textScaler: TextScaler.linear(1),
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Subtitle/location
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              color: Color(0xFFFF9800),
+                              size: 16,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            textScaler: TextScaler.linear(1),
-                          ),
-                        ),
-SizedBox(height: 10,),
-                        // Location with constrained height
-                        SizedBox(
-                          height: size.width * 0.1, // Fixed location height
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.location_on,
-                                color: Color(0xFFFF9800),
-                                size: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  location ?? '',
-                                  style: TextStyle(
-                                    fontSize: size.width * 0.033,
-                                    color: Colors.grey[900],
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.3,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textScaler: TextScaler.linear(1),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                location ?? '',
+                                style: TextStyle(
+                                  fontSize: size.width * 0.033,
+                                  color: Colors.grey[900],
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.3,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textScaler: TextScaler.linear(1),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
 
-                        // Spacer to push buttons to bottom
-                        const Spacer(),
-
-                        // Button row at fixed position at the bottom
+                        // Show completed date in history view
+                        SizedBox(height: 5),
+                        // Bottom row: time + Details/Closed button
                         Row(
                           children: [
                             // Time range container - with Flexible
@@ -182,7 +174,6 @@ SizedBox(height: 10,),
                                 onTap: isCompleted
                                     ? null // Disable tap if completed
                                     : () {
-                                        // Navigate to DetailPage using only the existing parameters
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -214,7 +205,7 @@ SizedBox(height: 10,),
                                     child: Text(
                                       isCompleted ? "Finished" : "Details",
                                       style: TextStyle(
-                                        fontSize: size.width * 0.033,
+                                        fontSize: size.width * 0.035,
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
                                       ),
@@ -226,6 +217,30 @@ SizedBox(height: 10,),
                             ),
                           ],
                         ),
+                        //SizedBox(height: 5),
+                        if (inHistoryView && completedAt != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green[700],
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "Completed: ${_formatCompletedDate(completedAt!)}",
+                                  style: TextStyle(
+                                    fontSize: size.width * 0.035,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.green[700],
+                                  ),
+                                  textScaler: TextScaler.linear(1),
+                                ),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -235,6 +250,7 @@ SizedBox(height: 10,),
           ),
 
           // Distance badge (top-right)
+          //if (distance != null && !isCompleted)
           Positioned(
             top: 0,
             right: 20,
@@ -249,16 +265,44 @@ SizedBox(height: 10,),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: Text(
-                distance ?? "0 km",
+                distance!,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                ),
-                textScaler: TextScaler.linear(1),
+                ),textScaler: TextScaler.linear(1),
               ),
             ),
           ),
+
+          // Completed badge
+          // if (isCompleted && !inHistoryView)
+          //   Positioned(
+          //     top: 5,
+          //     right: 5,
+          //     child: Container(
+          //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          //       decoration: BoxDecoration(
+          //         color: Colors.green,
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //       child: Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         children: const [
+          //           Icon(Icons.check_circle, color: Colors.white, size: 12),
+          //           SizedBox(width: 4),
+          //           Text(
+          //             "COMPLETED",
+          //             style: TextStyle(
+          //               fontSize: 8,
+          //               color: Colors.white,
+          //               fontWeight: FontWeight.bold,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
         ],
       ),
     );

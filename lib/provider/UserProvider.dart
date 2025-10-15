@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soapy/models/User_model.dart';
+import 'package:soapy/models/employee_details_model.dart';
 import 'package:soapy/services/api_service.dart';
 import 'package:soapy/services/device_info.dart';
 import 'package:soapy/util/appconstant.dart';
@@ -27,7 +28,72 @@ class UserProvider extends ChangeNotifier {
     AppGlobal.deviceInfo = await DeviceInfoServices.getDeviceInfo();
   }
 
- Future<APIResp> login({required String UserMobile}) async {
+//  Future<APIResp> login({required String UserMobile}) async {
+//   print("------------------------ Enter login");
+
+//   try {
+//     final resp = await APIService.post(
+//       UrlPath.loginUrl.login,
+//       data: {"mobileNumber": UserMobile},
+//       headers: {'Content-Type': 'application/json'},
+//     );
+
+//     print("Response Status Code: ${resp.statusCode}");
+//     print("Response Data------------------>");
+//     print(resp.data);
+
+//     if (resp.statusCode == 200) {
+//       final success = resp.status;
+//       final body = resp.fullBody;
+
+//       if (success) {
+//         print("✅ OTP sent successfully");
+
+//         final otpData = resp.data;
+
+//         if (otpData is Map) {
+//           final mobileNumber = otpData["mobileNumber"]?.toString() ?? "";
+//           final otp = otpData["otp"]?.toString() ?? "";
+//           final expiresIn = otpData["expiresIn"]?.toString() ?? "";
+
+//           final prefs = await SharedPreferences.getInstance();
+//           await prefs.setString(AppConstants.USERMOBILE, mobileNumber);
+//           await prefs.setString(AppConstants.Otp, otp);
+//           await prefs.setString(AppConstants.OtpExpiresIn, expiresIn);
+
+//           print("✅ Saved Details:");
+//           print("📱 Mobile: $mobileNumber");
+//           print("🔢 OTP: $otp");
+//           print("⏱ Expires In: $expiresIn seconds");
+//         }
+//       }
+
+//       return APIResp(
+//         status: success,
+//         statusCode: resp.statusCode,
+//         data: body,
+//         fullBody: body,
+//       );
+//     } else {
+//       return APIResp(
+//         status: false,
+//         statusCode: resp.statusCode,
+//         data: resp.fullBody,
+//         fullBody: resp.fullBody,
+//       );
+//     }
+//   } catch (e, stack) {
+//     print("❌ Exception in login: $e");
+//     print(stack);
+//     return APIResp(
+//       status: false,
+//       statusCode: 500,
+//       data: null,
+//       fullBody: null,
+//     );
+//   }
+
+Future<APIResp> login({required String UserMobile}) async {
   print("------------------------ Enter login");
 
   try {
@@ -39,59 +105,48 @@ class UserProvider extends ChangeNotifier {
 
     print("Response Status Code: ${resp.statusCode}");
     print("Response Data------------------>");
-    print(resp.data);
+    print(resp.fullBody);
 
-    if (resp.statusCode == 200) {
-      final success = resp.status;
-      final body = resp.fullBody;
+    // Process the successful API responses
+    if (resp.statusCode == 200 && resp.status) {
+      print("✅ OTP sent successfully");
 
-      if (success) {
-        print("✅ OTP sent successfully");
+      final otpData = resp.data;
 
-        final otpData = resp.data;
+      if (otpData is Map) {
+        final mobileNumber = otpData["mobileNumber"]?.toString() ?? "";
+        final otp = otpData["otp"]?.toString() ?? "";
+        final expiresIn = otpData["expiresIn"]?.toString() ?? "";
 
-        if (otpData is Map) {
-          final mobileNumber = otpData["mobileNumber"]?.toString() ?? "";
-          final otp = otpData["otp"]?.toString() ?? "";
-          final expiresIn = otpData["expiresIn"]?.toString() ?? "";
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(AppConstants.USERMOBILE, mobileNumber);
+        await prefs.setString(AppConstants.Otp, otp);
+        await prefs.setString(AppConstants.OtpExpiresIn, expiresIn);
 
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(AppConstants.USERMOBILE, mobileNumber);
-          await prefs.setString(AppConstants.Otp, otp);
-          await prefs.setString(AppConstants.OtpExpiresIn, expiresIn);
-
-          print("✅ Saved Details:");
-          print("📱 Mobile: $mobileNumber");
-          print("🔢 OTP: $otp");
-          print("⏱ Expires In: $expiresIn seconds");
-        }
+        print("✅ Saved Details:");
+        print("📱 Mobile: $mobileNumber");
+        print("🔢 OTP: $otp");
+        print("⏱ Expires In: $expiresIn seconds");
       }
-
-      return APIResp(
-        status: success,
-        statusCode: resp.statusCode,
-        data: body,
-        fullBody: body,
-      );
-    } else {
-      return APIResp(
-        status: false,
-        statusCode: resp.statusCode,
-        data: resp.fullBody,
-        fullBody: resp.fullBody,
-      );
     }
+
+    // Always return the API response, even if success is false
+    return resp;
   } catch (e, stack) {
     print("❌ Exception in login: $e");
     print(stack);
+    
+    // Return a user-friendly error message
     return APIResp(
       status: false,
-      statusCode: 500,
-      data: null,
-      fullBody: null,
+      statusCode: 0,
+      data: {"message": "Network error. Please try again."},
+      fullBody: {"message": "Network error. Please try again."},
     );
   }
 }
+
+
 
 
 Future<APIResp> verifyOtp({
@@ -159,6 +214,46 @@ Future<APIResp> verifyOtp({
       );
     }
   }
+
+  Future<EmployeeDetailsResponse?> fetchEmployeeDetails(String mobileNumber) async {
+    try {
+      final response = await APIService.post(
+        UrlPath.loginUrl.getEmployee, // 🔹 your verify OTP API endpoint
+        data: {"mobileNumber": mobileNumber},
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print("Response Code: ${response.statusCode}");
+      print("Response Data: ${response.fullBody}");
+
+      if (response.statusCode == 200 && response.fullBody != null) {
+        // Decode and map to your model
+        final model = EmployeeDetailsResponse.fromJson(response.fullBody);
+
+        // Optionally store basic employee info in SharedPreferences
+        // if (model.success && model.data?.employee != null) {
+        //   final prefs = await SharedPreferences.getInstance();
+        //   final emp = model.data!.employee!;
+        //   await prefs.setString(AppConstants.UserID, emp.id);
+        //   await prefs.setString(AppConstants.USERNAME, emp.name);
+        //  // await prefs.setString(AppConstants.USERMOBILE, emp.mobileNumber);
+        //  // await prefs.setString(AppConstants.USERROLE, emp.role);
+        //   print("✅ Employee details saved successfully");
+        // }
+
+        return model;
+      } else {
+        print("❌ Failed to load employee details: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, stack) {
+      print("❌ Error fetching employee details: $e");
+      print(stack);
+      return null;
+    }
+  }
+
+
 }
 
   // // Future<APIResp> fetchStores() async {

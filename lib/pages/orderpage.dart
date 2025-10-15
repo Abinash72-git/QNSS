@@ -33,14 +33,14 @@ class _OrderpageState extends State<Orderpage> {
   // Services with subcategories
   final List<Map<String, dynamic>> services = [
     {
-      "category": "Car Parking",
+      "category": "Work Shop Bay 1",
       "seconds": 0,
       "timer": null,
       "started": false,
       "expanded": false,
       "subcategories": [
         {
-          "name": "Car Shutter",
+          "name": "Dispenser (GC / H)",
           "seconds": 0,
           "timer": null,
           "started": false,
@@ -49,7 +49,7 @@ class _OrderpageState extends State<Orderpage> {
           "completed": false,
         },
         {
-          "name": "Parking Wall",
+          "name": "Trash Can (WS / W)",
           "seconds": 0,
           "timer": null,
           "started": false,
@@ -62,14 +62,14 @@ class _OrderpageState extends State<Orderpage> {
     },
 
     {
-      "category": "Conference Room",
+      "category": "Toilet POS Gate 1",
       "seconds": 0,
       "timer": null,
       "started": false,
       "expanded": false,
       "subcategories": [
         {
-          "name": "Projector Setup",
+          "name": "Doors (DM / H)",
           "seconds": 0,
           "timer": null,
           "started": false,
@@ -78,7 +78,7 @@ class _OrderpageState extends State<Orderpage> {
           "completed": false,
         },
         {
-          "name": "AC Unit",
+          "name": "Mirror Glass (DS / H)",
           "seconds": 0,
           "timer": null,
           "started": false,
@@ -847,312 +847,530 @@ class _OrderpageState extends State<Orderpage> {
   //   );
   // }
 
-  Future<void> showFinishDialog(
-    BuildContext context,
-    String endTime,
-    String serviceName,
-    String? company, {
-    Function(String)? onImageCaptured,
-    bool isCategory = false,
-    int? categoryIndex,
-  }) async {
-    File? localSelectedImage;
+  // Future<void> showFinishDialog(
+  //   BuildContext context,
+  //   String endTime,
+  //   String serviceName,
+  //   String? company, {
+  //   Function(String)? onImageCaptured,
+  //   bool isCategory = false,
+  //   int? categoryIndex,
+  // }) async {
+  //   File? localSelectedImage;
 
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            // Check if an image is selected to enable/disable the FINISH button
-            bool isImageSelected = localSelectedImage != null;
+  //   await showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setDialogState) {
+  //           // Check if an image is selected to enable/disable the FINISH button
+  //           bool isImageSelected = localSelectedImage != null;
 
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              insetPadding: const EdgeInsets.all(20),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          company ?? "Company",
-                          style: const TextStyle(
-                            color: AppColor.loginButton,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                          textScaler: TextScaler.linear(1),
+  //           return Dialog(
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(16),
+  //             ),
+  //             insetPadding: const EdgeInsets.all(20),
+  //             child: Stack(
+  //               children: [
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(16.0),
+  //                   child: Column(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     children: [
+  //                       Text(
+  //                         company ?? "Company",
+  //                         style: const TextStyle(
+  //                           color: AppColor.loginButton,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 18,
+  //                         ),
+  //                         textScaler: TextScaler.linear(1),
+  //                       ),
+  //                       const SizedBox(height: 6),
+  //                       Text(
+  //                         serviceName,
+  //                         style: const TextStyle(
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.w800,
+  //                           color: Colors.black87,
+  //                         ),
+  //                         textScaler: TextScaler.linear(1),
+  //                       ),
+  //                       const SizedBox(height: 16),
+  //                       Row(
+  //                         mainAxisAlignment: MainAxisAlignment.center,
+  //                         children: [
+  //                           const Icon(
+  //                             Icons.timer,
+  //                             color: AppColor.loginButton,
+  //                           ),
+  //                           const SizedBox(width: 6),
+  //                           Column(
+  //                             children: [
+  //                               Text(
+  //                                 endTime,
+  //                                 style: const TextStyle(
+  //                                   fontSize: 20,
+  //                                   color: Colors.blue,
+  //                                   fontWeight: FontWeight.bold,
+  //                                 ),
+  //                                 textScaler: TextScaler.linear(1),
+  //                               ),
+  //                               const SizedBox(height: 2),
+  //                               const Text(
+  //                                 "hr   :   min   :   sec",
+  //                                 style: TextStyle(
+  //                                   fontSize: 10,
+  //                                   color: Colors.grey,
+  //                                 ),
+  //                                 textScaler: TextScaler.linear(1),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         ],
+  //                       ),
+  //                       const SizedBox(height: 20),
+  //                       const Text(
+  //                         "Finished Cleaning",
+  //                         style: TextStyle(
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 16,
+  //                         ),
+  //                         textScaler: TextScaler.linear(1),
+  //                       ),
+  //                       const SizedBox(height: 8),
+
+  //                       // Image selector with visual indicator
+  //                       Stack(
+  //                         children: [
+  //                           GestureDetector(
+  //                             onTap: () async {
+  //                               final picker = ImagePicker();
+  //                               final picked = await picker.pickImage(
+  //                                 source: ImageSource.camera,
+  //                               );
+  //                               if (picked != null) {
+  //                                 final cropped = await ImageCropper()
+  //                                     .cropImage(
+  //                                       sourcePath: picked.path,
+  //                                       uiSettings: [
+  //                                         AndroidUiSettings(
+  //                                           toolbarTitle: 'Crop Image',
+  //                                           toolbarColor: Colors.deepOrange,
+  //                                           toolbarWidgetColor: Colors.white,
+  //                                         ),
+  //                                         IOSUiSettings(title: 'Crop Image'),
+  //                                       ],
+  //                                     );
+  //                                 if (cropped != null) {
+  //                                   setDialogState(() {
+  //                                     localSelectedImage = File(cropped.path);
+  //                                   });
+  //                                 }
+  //                               }
+  //                             },
+  //                             child: Container(
+  //                               width: 120,
+  //                               height: 120,
+  //                               decoration: BoxDecoration(
+  //                                 color: localSelectedImage == null
+  //                                     ? Colors.orange
+  //                                     : Colors.transparent,
+  //                                 borderRadius: BorderRadius.circular(12),
+  //                                 border: Border.all(
+  //                                   color: localSelectedImage == null
+  //                                       ? Colors.transparent
+  //                                       : Colors.green,
+  //                                   width: 3,
+  //                                 ),
+  //                               ),
+  //                               child: localSelectedImage == null
+  //                                   ? Column(
+  //                                       mainAxisAlignment:
+  //                                           MainAxisAlignment.center,
+  //                                       children: const [
+  //                                         Icon(
+  //                                           Icons.add_a_photo,
+  //                                           color: Colors.white,
+  //                                           size: 40,
+  //                                         ),
+  //                                         SizedBox(height: 8),
+  //                                         Text(
+  //                                           "Take a Photo",
+  //                                           style: TextStyle(
+  //                                             color: Colors.white,
+  //                                             fontWeight: FontWeight.bold,
+  //                                           ),
+  //                                           textScaler: TextScaler.linear(1),
+  //                                         ),
+  //                                         SizedBox(height: 4),
+  //                                         Text(
+  //                                           "(Required)",
+  //                                           style: TextStyle(
+  //                                             color: Colors.white,
+  //                                             fontSize: 12,
+  //                                           ),
+  //                                           textScaler: TextScaler.linear(1),
+  //                                         ),
+  //                                       ],
+  //                                     )
+  //                                   : ClipRRect(
+  //                                       borderRadius: BorderRadius.circular(10),
+  //                                       child: Image.file(
+  //                                         localSelectedImage!,
+  //                                         width: 120,
+  //                                         height: 120,
+  //                                         fit: BoxFit.cover,
+  //                                       ),
+  //                                     ),
+  //                             ),
+  //                           ),
+
+  //                           // Checkmark badge when image is selected
+  //                           if (localSelectedImage != null)
+  //                             Positioned(
+  //                               right: 5,
+  //                               top: 5,
+  //                               child: Container(
+  //                                 padding: const EdgeInsets.all(2),
+  //                                 decoration: BoxDecoration(
+  //                                   color: Colors.green,
+  //                                   shape: BoxShape.circle,
+  //                                   border: Border.all(
+  //                                     color: Colors.white,
+  //                                     width: 2,
+  //                                   ),
+  //                                 ),
+  //                                 child: const Icon(
+  //                                   Icons.check,
+  //                                   color: Colors.white,
+  //                                   size: 16,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                         ],
+  //                       ),
+
+  //                       const SizedBox(height: 5),
+
+  //                       // Image requirement text
+  //                       if (!isImageSelected)
+  //                         const Text(
+  //                           "Please take a photo to complete",
+  //                           style: TextStyle(
+  //                             color: Colors.red,
+  //                             fontSize: 12,
+  //                             fontStyle: FontStyle.italic,
+  //                           ),
+  //                           textScaler: TextScaler.linear(1),
+  //                         ),
+
+  //                       const SizedBox(height: 20),
+
+  //                       // Finish button - disabled when no image
+  //                       SizedBox(
+  //                         width: double.infinity,
+  //                         child: ElevatedButton(
+  //                           onPressed: isImageSelected
+  //                               ? () {
+  //                                   if (isCategory && categoryIndex != null) {
+  //                                     setState(() {
+  //                                       services[categoryIndex]["imagePath"] =
+  //                                           localSelectedImage!.path;
+  //                                       services[categoryIndex]["completed"] =
+  //                                           true;
+  //                                       services[categoryIndex]["started"] =
+  //                                           false;
+  //                                     });
+  //                                   } else if (onImageCaptured != null) {
+  //                                     onImageCaptured(localSelectedImage!.path);
+  //                                   }
+
+  //                                   Navigator.pop(context);
+  //                                   Fluttertoast.showToast(
+  //                                     msg: "$serviceName finished for $company",
+  //                                     toastLength: Toast.LENGTH_SHORT,
+  //                                     gravity: ToastGravity.BOTTOM,
+  //                                     backgroundColor: Colors.green,
+  //                                     textColor: Colors.white,
+  //                                     fontSize: 16.0,
+  //                                   );
+  //                                   // ScaffoldMessenger.of(context).showSnackBar(
+  //                                   //   SnackBar(
+  //                                   //     content: Text(
+  //                                   //       "$serviceName finished for $company",
+  //                                   //       textScaler: TextScaler.linear(1),
+  //                                   //     ),
+  //                                   //     backgroundColor: Colors.green,
+  //                                   //   ),
+  //                                   // );
+  //                                 }
+  //                               : null, // Disable button when no image
+
+  //                           style: ElevatedButton.styleFrom(
+  //                             backgroundColor: Colors.green,
+  //                             disabledBackgroundColor: Colors.grey,
+  //                             shape: RoundedRectangleBorder(
+  //                               borderRadius: BorderRadius.circular(8),
+  //                             ),
+  //                             padding: const EdgeInsets.symmetric(vertical: 12),
+  //                           ),
+  //                           child: Text(
+  //                             isImageSelected ? "FINISH" : "TAKE PHOTO FIRST",
+  //                             style: TextStyle(
+  //                               fontSize: 16,
+  //                               fontWeight: FontWeight.bold,
+  //                               color: Colors.white,
+  //                             ),
+  //                             textScaler: TextScaler.linear(1),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Positioned(
+  //                   right: 2,
+  //                   top: 0,
+  //                   child: GestureDetector(
+  //                     onTap: () => Navigator.pop(context),
+  //                     child: const CircleAvatar(
+  //                       radius: 12,
+  //                       backgroundColor: Colors.red,
+  //                       child: Icon(Icons.close, color: Colors.white, size: 14),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+
+
+Future<void> showFinishDialog(
+  BuildContext context,
+  String endTime,
+  String serviceName,
+  String? company, {
+  Function(String)? onImageCaptured,
+  bool isCategory = false,
+  int? categoryIndex,
+}) async {
+  File? localSelectedImage;
+
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            insetPadding: const EdgeInsets.all(20),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        company ?? "Company",
+                        style: const TextStyle(
+                          color: AppColor.loginButton,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          serviceName,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black87,
-                          ),
-                          textScaler: TextScaler.linear(1),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.timer,
-                              color: AppColor.loginButton,
-                            ),
-                            const SizedBox(width: 6),
-                            Column(
-                              children: [
-                                Text(
-                                  endTime,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textScaler: TextScaler.linear(1),
-                                ),
-                                const SizedBox(height: 2),
-                                const Text(
-                                  "hr   :   min   :   sec",
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey,
-                                  ),
-                                  textScaler: TextScaler.linear(1),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          "Finished Cleaning",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          textScaler: TextScaler.linear(1),
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Image selector with visual indicator
-                        Stack(
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                final picker = ImagePicker();
-                                final picked = await picker.pickImage(
-                                  source: ImageSource.camera,
-                                );
-                                if (picked != null) {
-                                  final cropped = await ImageCropper()
-                                      .cropImage(
-                                        sourcePath: picked.path,
-                                        uiSettings: [
-                                          AndroidUiSettings(
-                                            toolbarTitle: 'Crop Image',
-                                            toolbarColor: Colors.deepOrange,
-                                            toolbarWidgetColor: Colors.white,
-                                          ),
-                                          IOSUiSettings(title: 'Crop Image'),
-                                        ],
-                                      );
-                                  if (cropped != null) {
-                                    setDialogState(() {
-                                      localSelectedImage = File(cropped.path);
-                                    });
-                                  }
-                                }
-                              },
-                              child: Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  color: localSelectedImage == null
-                                      ? Colors.orange
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: localSelectedImage == null
-                                        ? Colors.transparent
-                                        : Colors.green,
-                                    width: 3,
-                                  ),
-                                ),
-                                child: localSelectedImage == null
-                                    ? Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: const [
-                                          Icon(
-                                            Icons.add_a_photo,
-                                            color: Colors.white,
-                                            size: 40,
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            "Take a Photo",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textScaler: TextScaler.linear(1),
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            "(Required)",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                            textScaler: TextScaler.linear(1),
-                                          ),
-                                        ],
-                                      )
-                                    : ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.file(
-                                          localSelectedImage!,
-                                          width: 120,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                              ),
-                            ),
-
-                            // Checkmark badge when image is selected
-                            if (localSelectedImage != null)
-                              Positioned(
-                                right: 5,
-                                top: 5,
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 5),
-
-                        // Image requirement text
-                        if (!isImageSelected)
-                          const Text(
-                            "Please take a photo to complete",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            textScaler: TextScaler.linear(1),
-                          ),
-
-                        const SizedBox(height: 20),
-
-                        // Finish button - disabled when no image
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: isImageSelected
-                                ? () {
-                                    if (isCategory && categoryIndex != null) {
-                                      setState(() {
-                                        services[categoryIndex]["imagePath"] =
-                                            localSelectedImage!.path;
-                                        services[categoryIndex]["completed"] =
-                                            true;
-                                        services[categoryIndex]["started"] =
-                                            false;
-                                      });
-                                    } else if (onImageCaptured != null) {
-                                      onImageCaptured(localSelectedImage!.path);
-                                    }
-
-                                    Navigator.pop(context);
-                                    Fluttertoast.showToast(
-                                      msg: "$serviceName finished for $company",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.BOTTOM,
-                                      backgroundColor: Colors.green,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0,
-                                    );
-                                    // ScaffoldMessenger.of(context).showSnackBar(
-                                    //   SnackBar(
-                                    //     content: Text(
-                                    //       "$serviceName finished for $company",
-                                    //       textScaler: TextScaler.linear(1),
-                                    //     ),
-                                    //     backgroundColor: Colors.green,
-                                    //   ),
-                                    // );
-                                  }
-                                : null, // Disable button when no image
-
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              disabledBackgroundColor: Colors.grey,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            child: Text(
-                              isImageSelected ? "FINISH" : "TAKE PHOTO FIRST",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textScaler: TextScaler.linear(1),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    right: 2,
-                    top: 0,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.red,
-                        child: Icon(Icons.close, color: Colors.white, size: 14),
+                        textScaler: TextScaler.linear(1),
                       ),
+                      const SizedBox(height: 6),
+                      Text(
+                        serviceName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
+                        ),
+                        textScaler: TextScaler.linear(1),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.timer,
+                            color: AppColor.loginButton,
+                          ),
+                          const SizedBox(width: 6),
+                          Column(
+                            children: [
+                              Text(
+                                endTime,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textScaler: TextScaler.linear(1),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                "hr   :   min   :   sec",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey,
+                                ),
+                                textScaler: TextScaler.linear(1),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Finished Cleaning",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        textScaler: TextScaler.linear(1),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Image selector with auto-close functionality
+                      GestureDetector(
+                        onTap: () async {
+                          final picker = ImagePicker();
+                          final picked = await picker.pickImage(
+                            source: ImageSource.camera,
+                          );
+                          
+                          if (picked != null) {
+                            final cropped = await ImageCropper().cropImage(
+                              sourcePath: picked.path,
+                              uiSettings: [
+                                AndroidUiSettings(
+                                  toolbarTitle: 'Crop Image',
+                                  toolbarColor: Colors.deepOrange,
+                                  toolbarWidgetColor: Colors.white,
+                                ),
+                                IOSUiSettings(title: 'Crop Image'),
+                              ],
+                            );
+                            
+                            if (cropped != null) {
+                              localSelectedImage = File(cropped.path);
+                              
+                              // Auto-complete the task after cropping
+                              if (isCategory && categoryIndex != null) {
+                                setState(() {
+                                  services[categoryIndex]["imagePath"] =
+                                      localSelectedImage!.path;
+                                  services[categoryIndex]["completed"] = true;
+                                  services[categoryIndex]["started"] = false;
+                                });
+                              } else if (onImageCaptured != null) {
+                                onImageCaptured(localSelectedImage!.path);
+                              }
+
+                              // Close the dialog
+                              Navigator.pop(dialogContext);
+                              
+                              // Show success toast
+                              Fluttertoast.showToast(
+                                msg: "$serviceName finished for $company",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: Colors.green,
+                                textColor: Colors.white,
+                                fontSize: 16.0,
+                              );
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.add_a_photo,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Take a Photo",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textScaler: TextScaler.linear(1),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "(Required)",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                                textScaler: TextScaler.linear(1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      const Text(
+                        "Tap to capture and auto-complete",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textScaler: TextScaler.linear(1),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: 2,
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(dialogContext),
+                    child: const CircleAvatar(
+                      radius: 12,
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.close, color: Colors.white, size: 14),
                     ),
                   ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -1222,7 +1440,7 @@ class _OrderpageState extends State<Orderpage> {
                     textScaler: TextScaler.linear(1),
                   ),
                   Text(
-                    "${getCompletedCategoriesCount()} of ${services.length} Total Jobs",
+                    "${getCompletedCategoriesCount()} of ${services.length} Total Areas",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.blue[700],

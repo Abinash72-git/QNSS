@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:soapy/config/app_theme.dart';
 import 'package:soapy/flavours.dart';
 import 'package:soapy/pages/homepage.dart';
+import 'package:soapy/pages/orderpage.dart';
 import 'package:soapy/pages/splash.dart';
 import 'package:soapy/provider/UserProvider.dart';
 import 'package:soapy/route_generator.dart';
